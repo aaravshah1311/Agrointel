@@ -1,0 +1,38 @@
+<%- include('partials/header') %>
+
+<section style="min-height: 90vh; background: linear-gradient(135deg, #f9fdf9, #e6f7ef);">
+  <div class="container py-5">
+    <h2 class="text-center mb-3 fw-bold text-dark">🌱 Recommended Crops For Your Land</h2>
+    <p class="text-center text-muted mb-5">
+      Based on your soil and live weather data, here are the crops most suitable for your farm.
+    </p>
+
+    <div class="row">
+      <% crops.forEach(crop => { %>
+        <div class="col-md-6 col-lg-3 mb-4">
+          <div class="card h-100 text-center border-0 rounded-3 card-hover">
+            <div class="card-body d-flex flex-column p-4">
+              <i class="fas fa-seedling fa-2x text-success mb-3"></i>
+              <h5 class="card-title fw-semibold text-dark"><%= crop %></h5>
+              <p class="card-text small text-muted mb-4">High suitability</p>
+
+              <form action="/user/select-crop" method="POST" class="d-inline">
+                <input type="hidden" name="cropName" value="<%= crop %>">
+                <button type="submit" class="btn btn-sm btn-success w-100 mb-2 shadow">
+                  <i class="fas fa-check-circle"></i> Select Crop
+                </button>
+              </form>
+
+              <a href="/user/crop-details/<%= crop %>" 
+                 class="btn btn-sm btn-outline-dark w-100 mt-auto shadow-sm">
+                <i class="fas fa-info-circle"></i> View Details
+              </a>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

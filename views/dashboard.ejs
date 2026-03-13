@@ -1,0 +1,172 @@
+<%- include('partials/header') %>
+
+<section style="min-height: 90vh; background: linear-gradient(135deg, #f9fdf9, #e6f7ef);">
+  <div class="container-fluid py-4">
+    <h2 class="mb-4">Welcome back, <%= user.name %>!</h2>
+    
+    <!-- Weather Cards -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card text-white bg-primary shadow">
+          <div class="card-body">
+            <h5 class="card-title"><i class="fas fa-thermometer-half"></i> Temperature</h5>
+            <p class="card-text display-4"><%= weather.temperature %> °C</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-white bg-info shadow">
+          <div class="card-body">
+            <h5 class="card-title"><i class="fas fa-tint"></i> Humidity</h5>
+            <p class="card-text display-4"><%= weather.humidity %> %</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-white bg-secondary shadow">
+          <div class="card-body">
+            <h5 class="card-title"><i class="fas fa-cloud-showers-heavy"></i> Rainfall (last hr)</h5>
+            <p class="card-text display-4"><%= weather.rainfall %> mm</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Growth Timeline + Actionable Tasks -->
+    <div class="row">
+      <!-- Growth Chart -->
+      <div class="col-lg-8 mb-4">
+        <div class="card shadow">
+          <div class="card-header bg-success text-white">
+            <h4><i class="fas fa-chart-line"></i> Growth Timeline for <%= crop.crop_name %></h4>
+          </div>
+          <div class="card-body">
+            <canvas id="growthTimelineChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actionable Tasks -->
+      <div class="col-lg-4">
+        <div class="card shadow">
+          <div class="card-header bg-dark text-white">
+            <h4><i class="fas fa-tasks"></i> Actionable Tasks</h4>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+              <tbody>
+                <% 
+                  const colors = ['#28a745', '#20c997', '#17a2b8', '#ffc107', '#fd7e14', '#dc3545', '#6f42c1']; 
+                  timeline.forEach((item, i) => { 
+                %>
+                  <tr>
+                    <td><strong><%= item.task %></strong></td>
+                    <td class="text-end">
+                      <span class="badge rounded-pill" 
+                            style="background-color:<%= colors[i % colors.length] %>; color:#fff;">
+                        Around Day <%= item.day %>
+                      </span>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Chart.js Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('growthTimelineChart').getContext('2d');
+  const timelineData = <%- JSON.stringify(timeline) %>;
+  const crop = <%- JSON.stringify(crop) %>;
+
+  const sowingDate = new Date(crop.sowing_date);
+  const today = new Date();
+  const daysPassed = Math.max(0, Math.floor((today - sowingDate) / (1000 * 60 * 60 * 24)));
+
+  const labels = timelineData.map(item => item.task);
+  const taskDays = timelineData.map(item => item.day);
+  const colors = ['#28a745', '#20c997', '#17a2b8', '#ffc107', '#fd7e14', '#dc3545', '#6f42c1'];
+
+  const datasets = [];
+  for (let i = 0; i < labels.length - 1; i++) {
+    const stageDuration = taskDays[i+1] - taskDays[i];
+    datasets.push({
+      label: labels[i],
+      data: [stageDuration],
+      backgroundColor: colors[i % colors.length],
+      borderColor: '#ffffff',
+      borderWidth: 1,
+      barPercentage: 0.6,
+    });
+  }
+
+  const todayLinePlugin = {
+    id: 'todayLine',
+    afterDatasetsDraw(chart, args, options) {
+      const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+      if(daysPassed <= x.max) {
+        const xPos = x.getPixelForValue(daysPassed);
+        ctx.save();
+        ctx.beginPath();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#343a40';
+        ctx.moveTo(xPos, top);
+        ctx.lineTo(xPos, bottom);
+        ctx.stroke();
+        
+        ctx.fillStyle = '#343a40';
+        ctx.textAlign = 'center';
+        ctx.fillText('Today', xPos, top - 5);
+        ctx.restore();
+      }
+    }
+  };
+
+  const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['<%= crop.crop_name %> Lifecycle'],
+      datasets: datasets,
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.dataset.label || '';
+              const duration = context.raw;
+              return `${label}: approx. ${duration} days`;
+            }
+          }
+        },
+        todayLine: {}
+      },
+      scales: {
+        x: {
+          stacked: true,
+          title: {
+            display: true,
+            text: 'Days Since Sowing'
+          }
+        },
+        y: {
+          stacked: true
+        }
+      }
+    },
+    plugins: [todayLinePlugin]
+  });
+});
+</script>
+
+<%- include('partials/footer') %>

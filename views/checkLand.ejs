@@ -1,0 +1,77 @@
+<%- include('partials/header') %>
+
+<section style="min-height: 90vh; background: linear-gradient(135deg, #f9fdf9, #e6f7ef);">
+  <div class="container py-5">
+    <h2 class="text-center mb-3 fw-bold text-dark">🌱 Your Land's Health Profile</h2>
+    <p class="text-center text-muted mb-5">
+      Simulated soil data &amp; live weather report for your farm in 
+      <strong><%= user.city %>, <%= user.state %></strong>.
+    </p>
+
+    <div class="row g-4">
+      <!-- Soil Card -->
+      <div class="col-md-6">
+        <div class="card h-100 shadow border-0 rounded-3">
+          <div class="card-header bg-success text-white rounded-top">
+            <h4 class="mb-0"><i class="fas fa-mountain me-2"></i> Soil Composition (Simulated)</h4>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Nitrogen (N) Content
+                <span class="badge bg-primary rounded-pill"><%= soil.N %> ppm</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Phosphorous (P) Content
+                <span class="badge bg-info rounded-pill text-dark"><%= soil.P %> ppm</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Potassium (K) Content
+                <span class="badge bg-secondary rounded-pill"><%= soil.K %> ppm</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Soil pH Level
+                <span class="badge bg-warning rounded-pill text-dark"><%= soil.ph %></span>
+              </li>
+            </ul>
+            <p class="mt-3 small text-muted">
+              <strong>Note:</strong> These are simulated values based on regional data. 
+              For accuracy, a professional soil test is recommended.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Weather Card -->
+      <div class="col-md-6">
+        <div class="card h-100 shadow border-0 rounded-3">
+          <div class="card-header bg-primary text-white rounded-top">
+            <h4 class="mb-0"><i class="fas fa-cloud-sun-rain me-2"></i> Live Weather Report</h4>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Temperature
+                <span class="badge bg-danger rounded-pill"><%= weather.temperature %> °C</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Humidity
+                <span class="badge bg-info rounded-pill text-dark"><%= weather.humidity %> %</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                Rainfall (last hour)
+                <span class="badge bg-dark rounded-pill"><%= weather.rainfall %> mm</span>
+              </li>
+            </ul>
+            <p class="mt-3 small text-muted">
+              <strong>Suggestion:</strong> Current conditions are favorable. 
+              Adjust irrigation schedules depending on rainfall.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
